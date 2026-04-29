@@ -31,6 +31,31 @@ const allowedOrigins = config.clientUrl
   .map(normalizeOrigin)
   .filter(Boolean);
 
+const fallbackAllowedOrigins = [
+  "http://localhost:5173",
+  "http://localhost:5174",
+  "http://localhost:5175",
+  "https://mid2-fullstack.vercel.app"
+];
+
+function isAllowedOrigin(origin) {
+  const requestOrigin = normalizeOrigin(origin);
+
+  if (!origin) {
+    return true;
+  }
+
+  if (allowedOrigins.includes("*")) {
+    return true;
+  }
+
+  if (allowedOrigins.includes(requestOrigin) || fallbackAllowedOrigins.includes(requestOrigin)) {
+    return true;
+  }
+
+  return requestOrigin.endsWith(".vercel.app");
+}
+
 app.locals.broadcastTickerUpdate = broadcastTickerUpdate;
 app.locals.broadcastStockCreated = broadcastStockCreated;
 app.locals.broadcastStockDeleted = broadcastStockDeleted;
@@ -38,14 +63,13 @@ app.use(express.json());
 app.use(
   cors({
     origin(origin, callback) {
-      const requestOrigin = normalizeOrigin(origin);
-
-      if (!origin || allowedOrigins.includes("*") || allowedOrigins.includes(requestOrigin)) {
+      if (isAllowedOrigin(origin)) {
         callback(null, true);
         return;
       }
 
-      callback(new Error("Not allowed by CORS"));
+      console.warn(`Blocked by CORS: ${origin}`);
+      callback(null, false);
     }
   })
 );
