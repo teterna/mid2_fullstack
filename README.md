@@ -230,6 +230,13 @@ VITE_API_URL=https://pex-backend.onrender.com/api
 VITE_WS_URL=wss://pex-backend.onrender.com/ws
 ```
 
+For this project name, the production values would look like:
+
+```env
+VITE_API_URL=https://mid2-fullstack.onrender.com/api
+VITE_WS_URL=wss://mid2-fullstack.onrender.com/ws
+```
+
 For Railway:
 
 ```env
@@ -263,3 +270,15 @@ After both apps are deployed:
 6. Open the app in two browser windows.
 7. Change the owner price in one window.
 8. The other window should update instantly without refresh.
+
+Example Render backend variable:
+
+```env
+CLIENT_URL=https://mid2-fullstack.vercel.app
+```
+
+If you need several frontend URLs, separate them with commas:
+
+```env
+CLIENT_URL=http://localhost:5174,https://mid2-fullstack.vercel.app
+```

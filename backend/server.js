@@ -14,7 +14,22 @@ const server = http.createServer(app);
 const { broadcastStockCreated, broadcastStockDeleted, broadcastTickerUpdate } =
   setupWebSocketServer(server);
 
-const allowedOrigins = config.clientUrl.split(",").map((origin) => origin.trim());
+function normalizeOrigin(origin) {
+  if (!origin) {
+    return "";
+  }
+
+  try {
+    return new URL(origin.trim()).origin;
+  } catch (error) {
+    return origin.trim().replace(/\/+$/, "");
+  }
+}
+
+const allowedOrigins = config.clientUrl
+  .split(",")
+  .map(normalizeOrigin)
+  .filter(Boolean);
 
 app.locals.broadcastTickerUpdate = broadcastTickerUpdate;
 app.locals.broadcastStockCreated = broadcastStockCreated;
@@ -23,7 +38,9 @@ app.use(express.json());
 app.use(
   cors({
     origin(origin, callback) {
-      if (!origin || allowedOrigins.includes("*") || allowedOrigins.includes(origin)) {
+      const requestOrigin = normalizeOrigin(origin);
+
+      if (!origin || allowedOrigins.includes("*") || allowedOrigins.includes(requestOrigin)) {
         callback(null, true);
         return;
       }
